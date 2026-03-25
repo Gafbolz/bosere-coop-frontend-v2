@@ -1,0 +1,1 @@
+# bosere-coop-frontend-v2
