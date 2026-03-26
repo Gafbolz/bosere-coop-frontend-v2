@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabase";
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const loadUser = async () => {
@@ -18,31 +19,57 @@ export default function DashboardPage() {
 
       setUser(userData.user);
 
-      const session = await supabase.auth.getSession();
+      const sessionResult = await supabase.auth.getSession();
+      const accessToken = sessionResult.data.session?.access_token;
 
-      const res = await fetch(
-        "https://cooperaid-finance.preview.emergentagent.com/api/dashboard/me",
-        {
-          headers: {
-            Authorization: `Bearer ${session.data.session?.access_token}`,
-          },
+      if (!accessToken) {
+        setError("No access token found.");
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          "https://cooperaid-finance.preview.emergentagent.com/api/dashboard/me",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        const text = await res.text();
+        let result: any = null;
+
+        try {
+          result = JSON.parse(text);
+        } catch {
+          result = { raw: text };
         }
-      );
 
-      const result = await res.json();
-      setData(result);
+        if (!res.ok) {
+          setError(result?.detail || result?.message || text || "Failed to load dashboard data.");
+          return;
+        }
+
+        setData(result);
+      } catch (err: any) {
+        setError(err?.message || "Something went wrong while loading dashboard.");
+      }
     };
 
     loadUser();
   }, []);
 
-  if (!user) return <p>Loading...</p>;
+  if (!user) {
+    return <p style={{ padding: 20 }}>Loading user...</p>;
+  }
 
   return (
     <div style={{ padding: 20 }}>
       <h1>Dashboard</h1>
-
       <p>Email: {user.email}</p>
+
+      {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
       {data ? (
         <>
@@ -53,7 +80,7 @@ export default function DashboardPage() {
           <p>Total Share Value: {data.total_share_value}</p>
         </>
       ) : (
-        <p>Loading data...</p>
+        !error && <p>Loading data...</p>
       )}
     </div>
   );
