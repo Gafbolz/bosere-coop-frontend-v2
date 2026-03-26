@@ -29,7 +29,7 @@ export default function DashboardPage() {
 
       try {
         const res = await fetch(
-  `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/me`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/me`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -47,7 +47,12 @@ export default function DashboardPage() {
         }
 
         if (!res.ok) {
-          setError(result?.detail || result?.message || text || "Failed to load dashboard data.");
+          setError(
+            result?.detail ||
+              result?.message ||
+              text ||
+              "Failed to load dashboard data."
+          );
           return;
         }
 
@@ -60,6 +65,11 @@ export default function DashboardPage() {
     loadUser();
   }, []);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
+
   if (!user) {
     return <p style={{ padding: 20 }}>Loading user...</p>;
   }
@@ -67,7 +77,12 @@ export default function DashboardPage() {
   return (
     <div style={{ padding: 20 }}>
       <h1>Dashboard</h1>
+
       <p>Email: {user.email}</p>
+
+      <button onClick={handleLogout} style={{ marginBottom: 20 }}>
+        Logout
+      </button>
 
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
@@ -78,6 +93,42 @@ export default function DashboardPage() {
           <p>Shares: {data.shares_balance}</p>
           <p>Share Unit Price: {data.share_unit_price}</p>
           <p>Total Share Value: {data.total_share_value}</p>
+
+          {data.active_loan ? (
+            <>
+              <h3>Active Loan</h3>
+              <p>Amount: {data.active_loan.amount}</p>
+              <p>Total Repayment: {data.active_loan.total_repayment}</p>
+              <p>Total Repaid: {data.active_loan.total_repaid}</p>
+              <p>Remaining Balance: {data.active_loan.remaining_balance}</p>
+              <p>Status: {data.active_loan.status}</p>
+              <p>Purpose: {data.active_loan.purpose}</p>
+            </>
+          ) : (
+            <p>Active Loan: None</p>
+          )}
+
+          {data.recent_repayments && data.recent_repayments.length > 0 ? (
+            <>
+              <h3>Recent Repayments</h3>
+              {data.recent_repayments.map((repayment: any) => (
+                <div
+                  key={repayment.id}
+                  style={{
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <p>Amount: {repayment.amount}</p>
+                  <p>Date: {repayment.payment_date}</p>
+                  <p>Notes: {repayment.notes || "-"}</p>
+                </div>
+              ))}
+            </>
+          ) : (
+            <p>No recent repayments.</p>
+          )}
         </>
       ) : (
         !error && <p>Loading data...</p>
