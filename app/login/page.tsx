@@ -11,8 +11,11 @@ export default function LoginPage() {
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithOtp({
-      email,
-    });
+  email,
+  options: {
+    emailRedirectTo: "https://bosere-coop-frontend-v2-o917.vercel.app/dashboard",
+  },
+});
 
     if (error) {
       alert(error.message);
