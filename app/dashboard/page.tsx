@@ -68,15 +68,14 @@ export default function DashboardPage() {
     <div style={{ padding: 20 }}>
       <h1>Dashboard</h1>
       <p>Email: {user.email}</p>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
 
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
       {data ? (
         <>
-          <p>Name: {data.name}</p>
-          <p>Savings: {data.savings}</p>
-          <p>Shares: {data.shares}</p>
+          <p>Name: {data.full_name}</p>
+          <p>Savings: {data.savings_balance}</p>
+          <p>Shares: {data.shares_balance}</p>
           <p>Share Unit Price: {data.share_unit_price}</p>
           <p>Total Share Value: {data.total_share_value}</p>
         </>
