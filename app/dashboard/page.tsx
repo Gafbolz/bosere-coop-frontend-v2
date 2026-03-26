@@ -29,7 +29,7 @@ export default function DashboardPage() {
 
       try {
         const res = await fetch(
-          "https://cooperaid-finance.preview.emergentagent.com/api/dashboard/me",
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/dashboard/me`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
