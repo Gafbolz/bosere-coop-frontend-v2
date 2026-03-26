@@ -68,6 +68,7 @@ export default function DashboardPage() {
     <div style={{ padding: 20 }}>
       <h1>Dashboard</h1>
       <p>Email: {user.email}</p>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
 
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
